@@ -121,6 +121,29 @@
       line-height: 1.5;
     }
 
+    .key-box {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      text-align: center;
+    }
+
+    .key-label {
+      font-size: 10px;
+      color: #718096;
+      letter-spacing: 1px;
+    }
+
+    .key {
+      margin-top: 5px;
+      color: #60a5fa;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
     .footer {
       margin-top: 25px;
       text-align: center;
@@ -151,6 +174,7 @@
 
     </div>
 
+
     <form id="requestForm">
 
       <label>
@@ -161,8 +185,10 @@
         id="roblox"
         type="text"
         placeholder="Enter your Roblox username"
+        autocomplete="off"
         required
       >
+
 
       <label>
         DISCORD USERNAME
@@ -172,8 +198,10 @@
         id="discord"
         type="text"
         placeholder="Enter your Discord username"
+        autocomplete="off"
         required
       >
+
 
       <button
         id="submitButton"
@@ -184,7 +212,26 @@
 
     </form>
 
+
     <div id="message"></div>
+
+
+    <div
+      id="keyBox"
+      class="key-box"
+    >
+
+      <div class="key-label">
+        YOUR ACCESS KEY
+      </div>
+
+      <div
+        id="accessKey"
+        class="key"
+      ></div>
+
+    </div>
+
 
     <div class="footer">
       FINAL EXAM ACCESS
@@ -195,128 +242,208 @@
 
 <script>
 
-const APPS_SCRIPT_URL =
-  "https://script.google.com/macros/s/AKfycbxPvfWSAuuR4aM5YI7pFxwVRBwPv6wcK_YfXsqVSd5o820_Kwiz35DbYqTiw8FlysECrw/exec";
+/*
+==================================================
+GOOGLE APPS SCRIPT BACKEND
+==================================================
+*/
 
+const APPS_SCRIPT_URL =
+"https://script.google.com/macros/s/AKfycby6j-LluQ-2BkH4Y6dPpU6iWTc5q9KlShx3kj88SRNKBASd2-hYZcwzmyQrOukYIfzgIw/exec";
+
+
+/*
+==================================================
+FORM SUBMISSION
+==================================================
+*/
 
 document
-  .getElementById("requestForm")
-  .addEventListener("submit", async function(event) {
+.getElementById("requestForm")
+.addEventListener("submit", async function(event) {
 
-    event.preventDefault();
-
-    const roblox =
-      document
-        .getElementById("roblox")
-        .value
-        .trim();
-
-    const discord =
-      document
-        .getElementById("discord")
-        .value
-        .trim();
-
-    const button =
-      document.getElementById("submitButton");
-
-    const message =
-      document.getElementById("message");
+  event.preventDefault();
 
 
-    if (!roblox || !discord) {
-
-      message.innerText =
-        "Please complete all required fields.";
-
-      return;
-
-    }
+  const roblox =
+    document
+    .getElementById("roblox")
+    .value
+    .trim();
 
 
-    button.disabled = true;
+  const discord =
+    document
+    .getElementById("discord")
+    .value
+    .trim();
 
-    button.innerText =
-      "SUBMITTING...";
+
+  const button =
+    document
+    .getElementById("submitButton");
+
+
+  const message =
+    document
+    .getElementById("message");
+
+
+  const keyBox =
+    document
+    .getElementById("keyBox");
+
+
+  const accessKey =
+    document
+    .getElementById("accessKey");
+
+
+  if (!roblox || !discord) {
 
     message.innerText =
-      "Submitting your request. Please wait...";
+      "Please complete all required fields.";
+
+    return;
+
+  }
+
+
+  button.disabled = true;
+
+  button.innerText =
+    "SUBMITTING...";
+
+  message.innerText =
+    "Submitting your request. Please wait...";
+
+  keyBox.style.display =
+    "none";
+
+
+  try {
+
+    /*
+    We use GET + URL parameters because
+    GitHub Pages cannot directly use
+    google.script.run.
+    */
+
+    const url =
+      APPS_SCRIPT_URL +
+      "?action=submit" +
+      "&roblox=" +
+      encodeURIComponent(roblox) +
+      "&discord=" +
+      encodeURIComponent(discord);
+
+
+    const response =
+      await fetch(url, {
+        method: "GET",
+        redirect: "follow"
+      });
+
+
+    const text =
+      await response.text();
+
+
+    let result;
 
 
     try {
 
-      const response = await fetch(
-        APPS_SCRIPT_URL,
-        {
-          method: "POST",
+      result =
+        JSON.parse(text);
 
-          headers: {
-            "Content-Type":
-              "application/x-www-form-urlencoded"
-          },
+    } catch (jsonError) {
 
-          body:
-            new URLSearchParams({
-
-              action:
-                "submit",
-
-              roblox:
-                roblox,
-
-              discord:
-                discord
-
-            })
-        }
+      console.error(
+        "Server response:",
+        text
       );
 
+      throw new Error(
+        "Invalid server response."
+      );
 
-      const result =
-        await response.json();
-
-
-      if (result.success) {
-
-        message.innerText =
-          "Request submitted successfully. Opening your access page...";
+    }
 
 
-        if (result.url) {
+    if (result.success) {
 
-          window.location.href =
-            result.url;
+      message.innerText =
+        "Request submitted successfully. Your request is now WAITING for approval.";
 
-        }
 
-      } else {
+      if (result.accessKey) {
 
-        message.innerText =
-          result.message ||
-          "Unable to submit your request.";
+        accessKey.innerText =
+          result.accessKey;
 
-        button.disabled = false;
-
-        button.innerText =
-          "SUBMIT REQUEST";
+        keyBox.style.display =
+          "block";
 
       }
 
-    } catch (error) {
 
-      console.error(error);
+      /*
+      Open the access/status page
+      using the assigned key.
+      */
+
+      if (result.url) {
+
+        setTimeout(
+          function() {
+
+            window.location.href =
+              result.url;
+
+          },
+          1500
+        );
+
+      }
+
+    } else {
 
       message.innerText =
-        "Connection error. Please try again.";
+        result.message ||
+        "Unable to submit your request.";
 
-      button.disabled = false;
+      button.disabled =
+        false;
 
       button.innerText =
         "SUBMIT REQUEST";
 
     }
 
-  });
+
+  } catch (error) {
+
+    console.error(
+      "Submission error:",
+      error
+    );
+
+
+    message.innerText =
+      "Connection error. Please make sure the server is available and try again.";
+
+
+    button.disabled =
+      false;
+
+    button.innerText =
+      "SUBMIT REQUEST";
+
+  }
+
+});
+
 
 </script>
 
