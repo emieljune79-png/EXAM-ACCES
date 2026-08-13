@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
   <title>Exam Access Request</title>
 
   <style>
@@ -102,7 +101,6 @@
       font-weight: 800;
       letter-spacing: 1px;
       cursor: pointer;
-      transition: 0.2s;
     }
 
     button:hover {
@@ -199,10 +197,7 @@
         required
       >
 
-      <button
-        id="submitButton"
-        type="submit"
-      >
+      <button id="submitButton" type="submit">
         SUBMIT REQUEST
       </button>
 
@@ -219,29 +214,15 @@
   </div>
 
   <script>
-
     const APPS_SCRIPT_URL =
       "https://script.google.com/macros/s/AKfycbyIqvyDTvOGr8EmNxY0vhKOCaDcJHrrHSgvFpsYxqb6g97uaQTd2kE31rPUeDZTeDsjVq/exec";
 
-
-    const form =
-      document.getElementById("requestForm");
-
-    const robloxInput =
-      document.getElementById("roblox");
-
-    const discordInput =
-      document.getElementById("discord");
-
-    const submitButton =
-      document.getElementById("submitButton");
-
-    const message =
-      document.getElementById("message");
-
-    const keyBox =
-      document.getElementById("keyBox");
-
+    const form = document.getElementById("requestForm");
+    const robloxInput = document.getElementById("roblox");
+    const discordInput = document.getElementById("discord");
+    const submitButton = document.getElementById("submitButton");
+    const message = document.getElementById("message");
+    const keyBox = document.getElementById("keyBox");
 
     function jsonpRequest(params, callback) {
 
@@ -267,13 +248,11 @@
           if (finished) return;
 
           finished = true;
-
           cleanup();
 
           callback({
             success: false,
-            message:
-              "Connection timeout. Please try again."
+            message: "Connection timeout. Please try again."
           });
 
         }, 15000);
@@ -285,9 +264,7 @@
           if (finished) return;
 
           finished = true;
-
           clearTimeout(timeout);
-
           cleanup();
 
           callback(data);
@@ -307,15 +284,12 @@
           if (finished) return;
 
           finished = true;
-
           clearTimeout(timeout);
-
           cleanup();
 
           callback({
             success: false,
-            message:
-              "Connection error. Please try again."
+            message: "Connection error. Please try again."
           });
 
         };
@@ -330,19 +304,13 @@
           script &&
           script.parentNode
         ) {
-
           script.parentNode.removeChild(script);
-
         }
 
         try {
-
           delete window[callbackName];
-
         } catch (error) {
-
           window[callbackName] = undefined;
-
         }
 
       }
@@ -355,7 +323,6 @@
       function(event) {
 
         event.preventDefault();
-
 
         const roblox =
           robloxInput.value.trim();
@@ -386,7 +353,8 @@
         message.innerText =
           "Submitting your request...";
 
-        keyBox.style.display = "none";
+        keyBox.style.display =
+          "none";
 
 
         jsonpRequest(
