@@ -14,13 +14,10 @@
     body {
       margin: 0;
       min-height: 100vh;
-
       display: flex;
       justify-content: center;
       align-items: center;
-
       font-family: Arial, Helvetica, sans-serif;
-
       background: #1565c0;
       color: white;
     }
@@ -28,17 +25,11 @@
     .container {
       width: 92%;
       max-width: 500px;
-
       padding: 36px;
-
       border-radius: 20px;
-
       background: rgba(7, 15, 25, 0.96);
-
       border: 1px solid rgba(255,255,255,0.15);
-
-      box-shadow:
-        0 25px 70px rgba(0,0,0,0.45);
+      box-shadow: 0 25px 70px rgba(0,0,0,0.45);
     }
 
     .header {
@@ -48,68 +39,46 @@
 
     .badge {
       display: inline-block;
-
       padding: 7px 14px;
-
       border-radius: 20px;
-
       background: rgba(255,255,255,0.08);
-
       border: 1px solid rgba(255,255,255,0.15);
-
       color: #dbeafe;
-
       font-size: 11px;
       font-weight: bold;
-
       letter-spacing: 2px;
     }
 
     h1 {
       margin: 16px 0 8px;
-
       font-size: 29px;
-
       letter-spacing: 1px;
     }
 
     .subtitle {
       color: #aeb8c4;
-
       font-size: 14px;
-
       line-height: 1.5;
     }
 
     label {
       display: block;
-
       margin-top: 18px;
       margin-bottom: 7px;
-
       color: #d5dce5;
-
       font-size: 12px;
       font-weight: bold;
-
       letter-spacing: 1px;
     }
 
     input {
       width: 100%;
-
       padding: 14px;
-
       border-radius: 9px;
-
       border: 1px solid rgba(255,255,255,0.12);
-
       background: rgba(255,255,255,0.055);
-
       color: white;
-
       outline: none;
-
       font-size: 15px;
     }
 
@@ -123,25 +92,15 @@
 
     button {
       width: 100%;
-
       margin-top: 27px;
-
       padding: 15px;
-
       border: none;
-
       border-radius: 9px;
-
       background: #1976d2;
-
       color: white;
-
       font-size: 14px;
-
       font-weight: 800;
-
       letter-spacing: 1px;
-
       cursor: pointer;
     }
 
@@ -149,15 +108,24 @@
       background: #2196f3;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    #message {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 13px;
+      color: #aeb8c4;
+      line-height: 1.5;
+    }
+
     .footer {
       margin-top: 25px;
-
       text-align: center;
-
       font-size: 10px;
-
       color: #657383;
-
       letter-spacing: 1px;
     }
   </style>
@@ -183,13 +151,14 @@
 
     </div>
 
-    <form>
+    <form id="requestForm">
 
       <label>
         ROBLOX USERNAME
       </label>
 
       <input
+        id="roblox"
         type="text"
         placeholder="Enter your Roblox username"
         required
@@ -200,22 +169,156 @@
       </label>
 
       <input
+        id="discord"
         type="text"
         placeholder="Enter your Discord username"
         required
       >
 
-      <button type="submit">
+      <button
+        id="submitButton"
+        type="submit"
+      >
         SUBMIT REQUEST
       </button>
 
     </form>
+
+    <div id="message"></div>
 
     <div class="footer">
       FINAL EXAM ACCESS
     </div>
 
   </div>
+
+
+<script>
+
+const APPS_SCRIPT_URL =
+  "https://script.google.com/macros/s/AKfycbxPvfWSAuuR4aM5YI7pFxwVRBwPv6wcK_YfXsqVSd5o820_Kwiz35DbYqTiw8FlysECrw/exec";
+
+
+document
+  .getElementById("requestForm")
+  .addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const roblox =
+      document
+        .getElementById("roblox")
+        .value
+        .trim();
+
+    const discord =
+      document
+        .getElementById("discord")
+        .value
+        .trim();
+
+    const button =
+      document.getElementById("submitButton");
+
+    const message =
+      document.getElementById("message");
+
+
+    if (!roblox || !discord) {
+
+      message.innerText =
+        "Please complete all required fields.";
+
+      return;
+
+    }
+
+
+    button.disabled = true;
+
+    button.innerText =
+      "SUBMITTING...";
+
+    message.innerText =
+      "Submitting your request. Please wait...";
+
+
+    try {
+
+      const response = await fetch(
+        APPS_SCRIPT_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/x-www-form-urlencoded"
+          },
+
+          body:
+            new URLSearchParams({
+
+              action:
+                "submit",
+
+              roblox:
+                roblox,
+
+              discord:
+                discord
+
+            })
+        }
+      );
+
+
+      const result =
+        await response.json();
+
+
+      if (result.success) {
+
+        message.innerText =
+          "Request submitted successfully. Opening your access page...";
+
+
+        if (result.url) {
+
+          window.location.href =
+            result.url;
+
+        }
+
+      } else {
+
+        message.innerText =
+          result.message ||
+          "Unable to submit your request.";
+
+        button.disabled = false;
+
+        button.innerText =
+          "SUBMIT REQUEST";
+
+      }
+
+    } catch (error) {
+
+      console.error(error);
+
+      message.innerText =
+        "Connection error. Please try again.";
+
+      button.disabled = false;
+
+      button.innerText =
+        "SUBMIT REQUEST";
+
+    }
+
+  });
+
+</script>
 
 </body>
 </html>
