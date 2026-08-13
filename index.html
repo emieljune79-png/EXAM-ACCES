@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,10 +15,13 @@
     body {
       margin: 0;
       min-height: 100vh;
+
       display: flex;
       justify-content: center;
       align-items: center;
+
       font-family: Arial, Helvetica, sans-serif;
+
       background: #1565c0;
       color: white;
     }
@@ -25,11 +29,17 @@
     .container {
       width: 92%;
       max-width: 500px;
+
       padding: 36px;
+
       border-radius: 20px;
+
       background: rgba(7, 15, 25, 0.96);
+
       border: 1px solid rgba(255,255,255,0.15);
-      box-shadow: 0 25px 70px rgba(0,0,0,0.45);
+
+      box-shadow:
+        0 25px 70px rgba(0,0,0,0.45);
     }
 
     .header {
@@ -39,51 +49,76 @@
 
     .badge {
       display: inline-block;
+
       padding: 7px 14px;
+
       border-radius: 20px;
+
       background: rgba(255,255,255,0.08);
+
       border: 1px solid rgba(255,255,255,0.15);
+
       color: #dbeafe;
+
       font-size: 11px;
       font-weight: bold;
+
       letter-spacing: 2px;
     }
 
     h1 {
       margin: 16px 0 8px;
+
       font-size: 29px;
+
       letter-spacing: 1px;
     }
 
     .subtitle {
       color: #aeb8c4;
+
       font-size: 14px;
+
       line-height: 1.5;
     }
 
     label {
       display: block;
+
       margin-top: 18px;
       margin-bottom: 7px;
+
       color: #d5dce5;
+
       font-size: 12px;
       font-weight: bold;
+
       letter-spacing: 1px;
     }
 
     input {
       width: 100%;
+
       padding: 14px;
+
       border-radius: 9px;
+
       border: 1px solid rgba(255,255,255,0.12);
+
       background: rgba(255,255,255,0.055);
+
       color: white;
+
       outline: none;
+
       font-size: 15px;
     }
 
     input:focus {
       border-color: #60a5fa;
+
+      box-shadow:
+        0 0 0 2px rgba(96,165,250,0.12);
     }
 
     input::placeholder {
@@ -92,15 +127,25 @@
 
     button {
       width: 100%;
+
       margin-top: 27px;
+
       padding: 15px;
+
       border: none;
+
       border-radius: 9px;
+
       background: #1976d2;
+
       color: white;
+
       font-size: 14px;
+
       font-weight: 800;
+
       letter-spacing: 1px;
+
       cursor: pointer;
     }
 
@@ -110,45 +155,67 @@
 
     button:disabled {
       opacity: 0.6;
+
       cursor: not-allowed;
     }
 
     #message {
       margin-top: 18px;
+
       text-align: center;
+
       font-size: 13px;
+
       color: #aeb8c4;
+
       line-height: 1.5;
     }
 
     .key-box {
       display: none;
+
       margin-top: 15px;
+
       padding: 12px;
+
       border-radius: 8px;
+
       background: rgba(255,255,255,0.06);
+
       text-align: center;
     }
 
     .key-label {
       font-size: 10px;
+
       color: #718096;
+
       letter-spacing: 1px;
     }
 
     .key {
       margin-top: 5px;
+
       color: #60a5fa;
+
       font-size: 18px;
+
       font-weight: bold;
+
       letter-spacing: 1px;
+
+      word-break: break-all;
     }
 
     .footer {
       margin-top: 25px;
+
       text-align: center;
+
       font-size: 10px;
+
       color: #657383;
+
       letter-spacing: 1px;
     }
   </style>
@@ -244,7 +311,7 @@
 
 /*
 ==================================================
-GOOGLE APPS SCRIPT BACKEND
+GOOGLE APPS SCRIPT VERSION 16
 ==================================================
 */
 
@@ -254,7 +321,7 @@ const APPS_SCRIPT_URL =
 
 /*
 ==================================================
-FORM SUBMISSION
+SUBMIT REQUEST
 ==================================================
 */
 
@@ -267,36 +334,36 @@ document
 
   const roblox =
     document
-    .getElementById("roblox")
-    .value
-    .trim();
+      .getElementById("roblox")
+      .value
+      .trim();
 
 
   const discord =
     document
-    .getElementById("discord")
-    .value
-    .trim();
+      .getElementById("discord")
+      .value
+      .trim();
 
 
   const button =
     document
-    .getElementById("submitButton");
+      .getElementById("submitButton");
 
 
   const message =
     document
-    .getElementById("message");
+      .getElementById("message");
 
 
   const keyBox =
     document
-    .getElementById("keyBox");
+      .getElementById("keyBox");
 
 
   const accessKey =
     document
-    .getElementById("accessKey");
+      .getElementById("accessKey");
 
 
   if (!roblox || !discord) {
@@ -305,7 +372,6 @@ document
       "Please complete all required fields.";
 
     return;
-
   }
 
 
@@ -322,12 +388,6 @@ document
 
 
   try {
-
-    /*
-    We use GET + URL parameters because
-    GitHub Pages cannot directly use
-    google.script.run.
-    */
 
     const url =
       APPS_SCRIPT_URL +
@@ -357,7 +417,7 @@ document
       result =
         JSON.parse(text);
 
-    } catch (jsonError) {
+    } catch (error) {
 
       console.error(
         "Server response:",
@@ -367,7 +427,6 @@ document
       throw new Error(
         "Invalid server response."
       );
-
     }
 
 
@@ -384,28 +443,19 @@ document
 
         keyBox.style.display =
           "block";
-
       }
 
-
-      /*
-      Open the access/status page
-      using the assigned key.
-      */
 
       if (result.url) {
 
-        setTimeout(
-          function() {
+        setTimeout(function() {
 
-            window.location.href =
-              result.url;
+          window.location.href =
+            result.url;
 
-          },
-          1500
-        );
-
+        }, 1500);
       }
+
 
     } else {
 
@@ -418,7 +468,6 @@ document
 
       button.innerText =
         "SUBMIT REQUEST";
-
     }
 
 
@@ -431,7 +480,7 @@ document
 
 
     message.innerText =
-      "Connection error. Please make sure the server is available and try again.";
+      "Connection error. Please try again.";
 
 
     button.disabled =
@@ -439,13 +488,12 @@ document
 
     button.innerText =
       "SUBMIT REQUEST";
-
   }
 
 });
-
 
 </script>
 
 </body>
 </html>
+```
