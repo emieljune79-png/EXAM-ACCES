@@ -36,10 +36,10 @@
 
       background: rgba(7, 15, 25, 0.96);
 
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255, 255, 255, 0.15);
 
       box-shadow:
-        0 25px 70px rgba(0,0,0,0.45);
+        0 25px 70px rgba(0, 0, 0, 0.45);
     }
 
     .header {
@@ -54,9 +54,9 @@
 
       border-radius: 20px;
 
-      background: rgba(255,255,255,0.08);
+      background: rgba(255, 255, 255, 0.08);
 
-      border: 1px solid rgba(255,255,255,0.15);
+      border: 1px solid rgba(255, 255, 255, 0.15);
 
       color: #dbeafe;
 
@@ -103,9 +103,9 @@
 
       border-radius: 9px;
 
-      border: 1px solid rgba(255,255,255,0.12);
+      border: 1px solid rgba(255, 255, 255, 0.12);
 
-      background: rgba(255,255,255,0.055);
+      background: rgba(255, 255, 255, 0.055);
 
       color: white;
 
@@ -116,9 +116,6 @@
 
     input:focus {
       border-color: #60a5fa;
-
-      box-shadow:
-        0 0 0 2px rgba(96,165,250,0.12);
     }
 
     input::placeholder {
@@ -147,6 +144,8 @@
       letter-spacing: 1px;
 
       cursor: pointer;
+
+      transition: 0.2s;
     }
 
     button:hover {
@@ -155,54 +154,47 @@
 
     button:disabled {
       opacity: 0.6;
-
       cursor: not-allowed;
     }
 
     #message {
-      margin-top: 18px;
+      margin-top: 20px;
 
       text-align: center;
 
-      font-size: 13px;
-
       color: #aeb8c4;
 
+      font-size: 13px;
+
       line-height: 1.5;
+    }
+
+    .success {
+      color: #65c58a !important;
+    }
+
+    .error {
+      color: #ff7777 !important;
     }
 
     .key-box {
       display: none;
 
-      margin-top: 15px;
+      margin-top: 18px;
 
       padding: 12px;
 
       border-radius: 8px;
 
-      background: rgba(255,255,255,0.06);
+      background: rgba(255, 255, 255, 0.05);
+
+      border: 1px solid rgba(255, 255, 255, 0.1);
 
       text-align: center;
-    }
 
-    .key-label {
-      font-size: 10px;
-
-      color: #718096;
-
-      letter-spacing: 1px;
-    }
-
-    .key {
-      margin-top: 5px;
+      font-size: 12px;
 
       color: #60a5fa;
-
-      font-size: 18px;
-
-      font-weight: bold;
-
-      letter-spacing: 1px;
 
       word-break: break-all;
     }
@@ -244,7 +236,7 @@
 
     <form id="requestForm">
 
-      <label>
+      <label for="roblox">
         ROBLOX USERNAME
       </label>
 
@@ -257,7 +249,7 @@
       >
 
 
-      <label>
+      <label for="discord">
         DISCORD USERNAME
       </label>
 
@@ -282,22 +274,7 @@
 
     <div id="message"></div>
 
-
-    <div
-      id="keyBox"
-      class="key-box"
-    >
-
-      <div class="key-label">
-        YOUR ACCESS KEY
-      </div>
-
-      <div
-        id="accessKey"
-        class="key"
-      ></div>
-
-    </div>
+    <div id="keyBox" class="key-box"></div>
 
 
     <div class="footer">
@@ -309,188 +286,319 @@
 
 <script>
 
-/*
-==================================================
-GOOGLE APPS SCRIPT VERSION 16
-==================================================
-*/
+  // ==================================================
+  // VERSION 17 APPS SCRIPT WEB APP
+  // ==================================================
 
-const APPS_SCRIPT_URL =
-"https://script.google.com/macros/s/AKfycby6j-LluQ-2BkH4Y6dPpU6iWTc5q9KlShx3kj88SRNKBASd2-hYZcwzmyQrOukYIfzgIw/exec";
+  const APPS_SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbyIqvyDTvOGr8EmNxY0vhKOCaDcJHrrHSgvFpsYxqb6g97uaQTd2kE31rPUeDZTeDsjVq/exec";
 
 
-/*
-==================================================
-SUBMIT REQUEST
-==================================================
-*/
+  // ==================================================
+  // FORM ELEMENTS
+  // ==================================================
 
-document
-.getElementById("requestForm")
-.addEventListener("submit", async function(event) {
+  const form =
+    document.getElementById("requestForm");
 
-  event.preventDefault();
+  const robloxInput =
+    document.getElementById("roblox");
 
+  const discordInput =
+    document.getElementById("discord");
 
-  const roblox =
-    document
-      .getElementById("roblox")
-      .value
-      .trim();
-
-
-  const discord =
-    document
-      .getElementById("discord")
-      .value
-      .trim();
-
-
-  const button =
-    document
-      .getElementById("submitButton");
-
+  const submitButton =
+    document.getElementById("submitButton");
 
   const message =
-    document
-      .getElementById("message");
-
+    document.getElementById("message");
 
   const keyBox =
-    document
-      .getElementById("keyBox");
+    document.getElementById("keyBox");
 
 
-  const accessKey =
-    document
-      .getElementById("accessKey");
+  // ==================================================
+  // JSONP REQUEST
+  // ==================================================
+
+  function jsonpRequest(
+    params,
+    callback
+  ) {
+
+    const callbackName =
+      "jsonpCallback_" +
+      Date.now() +
+      "_" +
+      Math.floor(
+        Math.random() * 100000
+      );
 
 
-  if (!roblox || !discord) {
-
-    message.innerText =
-      "Please complete all required fields.";
-
-    return;
-  }
+    params.callback =
+      callbackName;
 
 
-  button.disabled = true;
-
-  button.innerText =
-    "SUBMITTING...";
-
-  message.innerText =
-    "Submitting your request. Please wait...";
-
-  keyBox.style.display =
-    "none";
+    const query =
+      new URLSearchParams(
+        params
+      ).toString();
 
 
-  try {
+    const script =
+      document.createElement("script");
 
-    const url =
+
+    const timeout =
+      setTimeout(
+        function() {
+
+          cleanup();
+
+          callback({
+            success: false,
+            message:
+              "Connection timeout. Please try again."
+          });
+
+        },
+        15000
+      );
+
+
+    window[callbackName] =
+      function(data) {
+
+        clearTimeout(timeout);
+
+        cleanup();
+
+        callback(data);
+
+      };
+
+
+    script.src =
       APPS_SCRIPT_URL +
-      "?action=submit" +
-      "&roblox=" +
-      encodeURIComponent(roblox) +
-      "&discord=" +
-      encodeURIComponent(discord);
+      "?" +
+      query;
 
 
-    const response =
-      await fetch(url, {
-        method: "GET",
-        redirect: "follow"
-      });
+    script.onerror =
+      function() {
+
+        clearTimeout(timeout);
+
+        cleanup();
+
+        callback({
+          success: false,
+          message:
+            "Connection error. Please try again."
+        });
+
+      };
 
 
-    const text =
-      await response.text();
+    document
+      .body
+      .appendChild(script);
 
 
-    let result;
+    function cleanup() {
 
+      if (
+        script &&
+        script.parentNode
+      ) {
 
-    try {
+        script.parentNode
+          .removeChild(script);
 
-      result =
-        JSON.parse(text);
-
-    } catch (error) {
-
-      console.error(
-        "Server response:",
-        text
-      );
-
-      throw new Error(
-        "Invalid server response."
-      );
-    }
-
-
-    if (result.success) {
-
-      message.innerText =
-        "Request submitted successfully. Your request is now WAITING for approval.";
-
-
-      if (result.accessKey) {
-
-        accessKey.innerText =
-          result.accessKey;
-
-        keyBox.style.display =
-          "block";
       }
 
 
-      if (result.url) {
+      try {
 
-        setTimeout(function() {
+        delete window[
+          callbackName
+        ];
 
-          window.location.href =
-            result.url;
+      } catch (error) {
 
-        }, 1500);
+        window[
+          callbackName
+        ] = undefined;
+
       }
 
-
-    } else {
-
-      message.innerText =
-        result.message ||
-        "Unable to submit your request.";
-
-      button.disabled =
-        false;
-
-      button.innerText =
-        "SUBMIT REQUEST";
     }
 
-
-  } catch (error) {
-
-    console.error(
-      "Submission error:",
-      error
-    );
-
-
-    message.innerText =
-      "Connection error. Please try again.";
-
-
-    button.disabled =
-      false;
-
-    button.innerText =
-      "SUBMIT REQUEST";
   }
 
-});
+
+  // ==================================================
+  // SUBMIT REQUEST
+  // ==================================================
+
+  form.addEventListener(
+    "submit",
+    function(event) {
+
+      event.preventDefault();
+
+
+      const roblox =
+        robloxInput.value.trim();
+
+      const discord =
+        discordInput.value.trim();
+
+
+      if (
+        !roblox ||
+        !discord
+      ) {
+
+        message.className =
+          "error";
+
+        message.innerText =
+          "Please enter both your Roblox and Discord username.";
+
+        return;
+
+      }
+
+
+      submitButton.disabled =
+        true;
+
+      submitButton.innerText =
+        "SUBMITTING...";
+
+
+      message.className = "";
+
+      message.innerText =
+        "Submitting your request...";
+
+
+      keyBox.style.display =
+        "none";
+
+
+      // ==============================================
+      // SEND TO APPS SCRIPT VERSION 17
+      // ==============================================
+
+      jsonpRequest(
+
+        {
+          action: "submit",
+
+          roblox: roblox,
+
+          discord: discord
+        },
+
+        function(result) {
+
+
+          // ==========================================
+          // SUCCESS
+          // ==========================================
+
+          if (
+            result &&
+            result.success
+          ) {
+
+            message.className =
+              "success";
+
+            message.innerText =
+              "Request submitted successfully.";
+
+
+            if (
+              result.accessKey
+            ) {
+
+              keyBox.style.display =
+                "block";
+
+              keyBox.innerText =
+                "ACCESS KEY: " +
+                result.accessKey;
+
+            }
+
+
+            // ========================================
+            // OPEN STATUS PAGE
+            // ========================================
+
+            if (
+              result.url
+            ) {
+
+              setTimeout(
+                function() {
+
+                  window.location.href =
+                    result.url;
+
+                },
+                1200
+              );
+
+            }
+
+            else {
+
+              submitButton.disabled =
+                false;
+
+              submitButton.innerText =
+                "SUBMIT REQUEST";
+
+            }
+
+
+            return;
+
+          }
+
+
+          // ==========================================
+          // FAILED RESPONSE
+          // ==========================================
+
+          message.className =
+            "error";
+
+          message.innerText =
+            (
+              result &&
+              result.message
+            )
+              ? result.message
+              : "Unable to submit request.";
+
+
+          submitButton.disabled =
+            false;
+
+          submitButton.innerText =
+            "SUBMIT REQUEST";
+
+        }
+
+      );
+
+    }
+  );
 
 </script>
 
